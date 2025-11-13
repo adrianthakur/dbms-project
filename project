@@ -1,0 +1,72 @@
+-- 📚 Library Management System (SQL-Only Project)
+
+-- 1. Create Tables (Normalized to 3NF)
+CREATE TABLE Authors (
+    author_id INT PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+CREATE TABLE Books (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(100),
+    author_id INT,
+    genre VARCHAR(50),
+    published_year INT,
+    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
+);
+
+CREATE TABLE Members (
+    member_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    join_date DATE
+);
+
+CREATE TABLE Borrowings (
+    borrow_id INT PRIMARY KEY,
+    book_id INT,
+    member_id INT,
+    borrow_date DATE,
+    return_date DATE,
+    FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    FOREIGN KEY (member_id) REFERENCES Members(member_id)
+);
+
+-- 2. Insert Sample Data
+INSERT INTO Authors VALUES 
+(1, 'J.K. Rowling'), 
+(2, 'George Orwell');
+
+INSERT INTO Books VALUES 
+(101, 'Harry Potter', 1, 'Fantasy', 1997),
+(102, '1984', 2, 'Dystopian', 1949);
+
+INSERT INTO Members VALUES 
+(201, 'Alice', '2023-01-10'),
+(202, 'Bob', '2023-02-15');
+
+INSERT INTO Borrowings VALUES 
+(301, 101, 201, '2023-03-01', NULL),
+(302, 102, 202, '2023-03-05', '2023-03-20');
+
+-- 3. Selection Queries
+-- List all books with their authors
+SELECT B.title, A.name AS author
+FROM Books B
+JOIN Authors A ON B.author_id = A.author_id;
+
+-- Find currently borrowed books
+SELECT B.title, M.name AS borrower
+FROM Borrowings BR
+JOIN Books B ON BR.book_id = B.book_id
+JOIN Members M ON BR.member_id = M.member_id
+WHERE BR.return_date IS NULL;
+
+-- 4. Update and Delete
+-- Update return date for a borrowing
+UPDATE Borrowings 
+SET return_date = '2023-04-01' 
+WHERE borrow_id = 301;
+
+-- Delete a member
+DELETE FROM Members 
+WHERE member_id = 202;
